@@ -153,11 +153,7 @@ for (i in 1:k) {
 }
 
 #tree
-train <- sample(
-  k,
-  size = nrow(data_2017),
-  replace = TRUE
-)
+train <- sample(rep(1:k,length.out=n))
 tree_error <- c(1:k)
 for (i in 1:k) {
   tree <- tree(
@@ -172,5 +168,24 @@ for (i in 1:k) {
   tree_error[i] <- 
     mean((data_2017$salary[train == i]-predict_tree)^2)
 }
+
+#random forest
+library(randomForest)
+random_forest_error <- c(1:k)
+for (i in 1:k) {
+  random_forest <- randomForest(
+    salary~Age+eFG_percent+PTS_pg+TRB_pg+USG_percent+AST_pg+
+      STL_pg+BLK_pg+rookie,
+    data = data_2017[train != i,],
+    importance=TRUE
+  )
+  predict_ranFOrest <- predict(
+    random_forest, 
+    newdata = data_2017[train == i,]
+  )
+  random_forest_error[i] <- 
+    mean((data_2017$salary[train == i]-predict_ranFOrest)^2)
+}
+
 
 
